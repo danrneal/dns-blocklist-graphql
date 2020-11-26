@@ -23,3 +23,6 @@ disable = [
     "bad-mcs-classmethod-argument",
     "f-string-without-interpolation",
 ]
+
+[tool.pylint.typecheck]
+generated-members = ["db.session.*"]
