@@ -1,3 +1,4 @@
+dnspython==2.0.0
 Flask==1.1.2
 Flask_GraphQL==2.0.1
 Flask_SQLAlchemy==2.4.4
