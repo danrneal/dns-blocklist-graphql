@@ -8,9 +8,11 @@ Attributes:
 
 Classes:
     BasicAuthTestCase()
+    DNSLookupTestCase()
 """
 
 import base64
+import time
 import unittest
 from unittest.mock import Mock
 
@@ -19,7 +21,8 @@ from werkzeug.security import generate_password_hash
 
 from app import app
 from auth import basic_auth
-from models import User, setup_db
+from dns_lookup import dns_lookup, upsert_ip_details
+from models import IPDetails, User, db, setup_db
 
 TEST_DATABASE_URL = "sqlite:///test_db.sqlite3"
 
@@ -99,6 +102,64 @@ class BasicAuthTestCase(unittest.TestCase):
         headers = {"Authorization": f"Basic {auth}"}
         with self.app.test_request_context(headers=headers):
             self.assertRaises(GraphQLError, self.basic_auth)
+
+
+class DNSLookupTestCase(unittest.TestCase):
+    """Contains the test cases for testing DNS lookup background job.
+
+    Attributes:
+        app: A flask app from app.py
+        database_url: A str representing the location of the db used for
+            testing
+    """
+
+    def setUp(self):
+        """Set-up for the DNSLookupTestCase."""
+        self.app = app
+        app.config["DEBUG"] = False
+        self.database_url = TEST_DATABASE_URL
+        setup_db(self.app, self.database_url)
+
+    def test_dns_lookup_no_response_code_success(self):
+        """Test successful DNS lookup when no response codes are expected."""
+        response_codes = dns_lookup("127.0.0.1")
+        self.assertIsNone(response_codes)
+
+    def test_dns_lookup_response_code_success(self):
+        """Test successful DNS lookup when response code(s) are expected."""
+        response_codes = dns_lookup("127.0.0.2")
+        self.assertGreater(len(response_codes), 0)
+
+    def test_dns_lookup_incomplete_ip_address_fail(self):
+        """Test DNS lookup failure when ip address is incomplete."""
+        self.assertRaises(TypeError, dns_lookup, "127.0.0")
+
+    def test_dns_lookup_malformed_ip_address_fail(self):
+        """Test DNS lookup failure when ip address is malformed."""
+        self.assertRaises(TypeError, dns_lookup, "127.0.0.A")
+
+    def test_upsert_ip_details_insert_success(self):
+        """Test successful insert into the db after DNS lookup."""
+        ip_details = IPDetails.query.filter_by(ip_address="127.0.0.2").first()
+        db.session.delete(ip_details)
+        db.session.commit()
+        upsert_ip_details("127.0.0.2")
+        ip_details = IPDetails.query.filter_by(ip_address="127.0.0.2").first()
+        self.assertIsNotNone(ip_details)
+        self.assertEqual(ip_details.created_at, ip_details.updated_at)
+
+    def test_upsert_up_details_update_success(self):
+        """Test successful update into the db after DNS lookup."""
+        ip_details = IPDetails.query.filter_by(ip_address="127.0.0.2").first()
+        db.session.delete(ip_details)
+        db.session.commit()
+        ip_details = IPDetails(ip_address="127.0.0.2")
+        ip_details.insert()
+        time.sleep(1)
+        upsert_ip_details("127.0.0.2")
+        ip_details = IPDetails.query.filter_by(ip_address="127.0.0.2").first()
+        self.assertIsNotNone(ip_details)
+        self.assertGreater(ip_details.updated_at, ip_details.created_at)
 
 
 if __name__ == "__main__":
