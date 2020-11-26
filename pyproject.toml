@@ -25,4 +25,4 @@ disable = [
 ]
 
 [tool.pylint.typecheck]
-generated-members = ["db.session.*"]
+generated-members = ["db.*"]
