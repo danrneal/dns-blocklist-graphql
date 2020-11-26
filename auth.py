@@ -1,10 +1,15 @@
-"""Logic for authenticating users using Authorization header."""
+"""Logic for authenticating users using Authorization header.
+
+Classes:
+    AuthGraphQLView()
+"""
 
 import base64
 import binascii
 from functools import wraps
 
 from flask import request
+from flask_graphql import GraphQLView
 from graphql import GraphQLError
 
 from models import User
@@ -44,3 +49,9 @@ def basic_auth(f):
         return f(*args, **kwargs)
 
     return decorator
+
+
+class AuthGraphQLView(GraphQLView):
+    """GraphQLView subclassed with a basic authentication decorator."""
+
+    decorators = [basic_auth]
