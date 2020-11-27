@@ -74,7 +74,14 @@ class User(db.Model):
         db.session.commit()
 
     def check_password(self, password):
-        """Check if a given password is correct for this user."""
+        """Check if a given password is correct for this user.
+
+        Args:
+            password: A str representing the password to check for the user
+
+        Returns:
+            A bool representing whether or not the given passord is correct
+        """
         return check_password_hash(self.password_hash, password)
 
 
