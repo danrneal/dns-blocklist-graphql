@@ -210,6 +210,63 @@ class GraphQLTestCase(unittest.TestCase):
             ["127.0.0.1", "127.0.0.2"],
         )
 
+    def test_query_resolve_get_ip_details_success(self):
+        """Test successful resolution of get_ip_details."""
+        ip_details = IPDetails.query.filter_by(ip_address="127.0.0.1").first()
+        if ip_details is None:
+            ip_details = IPDetails(ip_address="127.0.0.1")
+            ip_details.insert()
+
+        query = Query()
+        result = query.resolve_get_ip_details(None, "127.0.0.1")
+        self.assertEqual(result, ip_details)
+
+    def test_query_resolve_get_ip_details_not_found_fail(self):
+        """Test failed resolution of get_ip_details if ip address not found."""
+        ip_details = IPDetails.query.filter_by(ip_address="127.0.0.3").first()
+        if ip_details is not None:
+            db.session.delete(ip_details)
+            db.session.commit()
+
+        query = Query()
+        self.assertRaises(
+            GraphQLError, query.resolve_get_ip_details, None, "127.0.0.3",
+        )
+
+    def test_query_get_ip_details_success(self):
+        """Test successful get_ip_details query request."""
+        ip_details = IPDetails.query.filter_by(ip_address="127.0.0.1").first()
+        if ip_details is None:
+            ip_details = IPDetails(ip_address="127.0.0.1")
+            ip_details.insert()
+
+        result = self.client.execute(
+            """
+            query {
+                getIpDetails(ipAddress: "127.0.0.1"){
+                    uuid
+                    createdAt
+                    updatedAt
+                    ipAddress
+                    responseCodes {
+                        responseCode
+                    }
+                }
+            }
+            """
+        )
+        self.assertIsNone(result.get("errors"))
+        self.assertIsNotNone(result["data"]["getIpDetails"].get("uuid"))
+        self.assertIsNotNone(result["data"]["getIpDetails"].get("createdAt"))
+        self.assertIsNotNone(result["data"]["getIpDetails"].get("updatedAt"))
+        self.assertIsNotNone(result["data"]["getIpDetails"].get("uuid"))
+        self.assertIsNotNone(
+            result["data"]["getIpDetails"].get("responseCodes")
+        )
+        self.assertEqual(
+            result["data"]["getIpDetails"].get("ipAddress"), "127.0.0.1"
+        )
+
 
 if __name__ == "__main__":
     unittest.main()
