@@ -144,8 +144,10 @@ class DNSLookupTestCase(unittest.TestCase):
     def test_upsert_ip_details_insert_success(self):
         """Test successful insert into the db after DNS lookup."""
         ip_details = IPDetails.query.filter_by(ip_address="127.0.0.2").first()
-        db.session.delete(ip_details)
-        db.session.commit()
+        if ip_details is not None:
+            db.session.delete(ip_details)
+            db.session.commit()
+
         upsert_ip_details("127.0.0.2")
         ip_details = IPDetails.query.filter_by(ip_address="127.0.0.2").first()
         self.assertIsNotNone(ip_details)
@@ -154,8 +156,10 @@ class DNSLookupTestCase(unittest.TestCase):
     def test_upsert_up_details_update_success(self):
         """Test successful update into the db after DNS lookup."""
         ip_details = IPDetails.query.filter_by(ip_address="127.0.0.2").first()
-        db.session.delete(ip_details)
-        db.session.commit()
+        if ip_details is not None:
+            db.session.delete(ip_details)
+            db.session.commit()
+
         ip_details = IPDetails(ip_address="127.0.0.2")
         ip_details.insert()
         time.sleep(1)
