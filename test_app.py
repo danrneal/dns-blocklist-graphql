@@ -9,6 +9,7 @@ Attributes:
 Classes:
     BasicAuthTestCase()
     DNSLookupTestCase()
+    GraphQLTestCase()
 """
 
 import base64
@@ -16,6 +17,7 @@ import time
 import unittest
 from unittest.mock import Mock
 
+from graphene.test import Client
 from graphql import GraphQLError
 from werkzeug.security import generate_password_hash
 
@@ -23,6 +25,7 @@ from app import app
 from auth import basic_auth
 from dns_lookup import dns_lookup, upsert_ip_details
 from models import IPDetails, User, db, setup_db
+from schema import schema
 
 TEST_DATABASE_URL = "sqlite:///test_db.sqlite3"
 
@@ -160,6 +163,41 @@ class DNSLookupTestCase(unittest.TestCase):
         ip_details = IPDetails.query.filter_by(ip_address="127.0.0.2").first()
         self.assertIsNotNone(ip_details)
         self.assertGreater(ip_details.updated_at, ip_details.created_at)
+
+
+class GraphQLTestCase(unittest.TestCase):
+    """Contains the test cases for testing the graphql endpoint.
+
+    Attributes:
+        app: A flask app from app.py
+        database_url: A str representing the location of the db used for
+            testing
+    """
+
+    def setUp(self):
+        """Set-up for the GraphQLTestCase."""
+        self.app = app
+        app.config["DEBUG"] = False
+        self.client = Client(schema)
+        self.database_url = TEST_DATABASE_URL
+        setup_db(self.app, self.database_url)
+
+    def test_mutation_enqueue_success(self):
+        """Test successful enqueue mutation request."""
+        result = self.client.execute(
+            """
+            mutation {
+                enqueue(ipAddresses: ["127.0.0.1", "127.0.0.2"]) {
+                    ipAddresses
+                }
+            }
+            """
+        )
+        self.assertIsNone(result.get("errors"))
+        self.assertEqual(
+            result["data"]["enqueue"]["ipAddresses"],
+            ["127.0.0.1", "127.0.0.2"],
+        )
 
 
 if __name__ == "__main__":
