@@ -6,10 +6,10 @@ Attributes:
     app: A flask Flask object creating the flask app
 """
 from flask import Flask
-from schema import schema
 
 from auth import AuthGraphQLView
 from models import setup_db
+from schema import schema
 
 app = Flask(__name__)
 setup_db(app)
