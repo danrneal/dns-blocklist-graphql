@@ -25,7 +25,7 @@ from app import app
 from auth import basic_auth
 from dns_lookup import dns_lookup, upsert_ip_details
 from models import IPDetails, User, db, setup_db
-from schema import schema
+from schema import Enqueue, Query, schema
 
 TEST_DATABASE_URL = "sqlite:///test_db.sqlite3"
 
@@ -181,6 +181,13 @@ class GraphQLTestCase(unittest.TestCase):
         self.client = Client(schema)
         self.database_url = TEST_DATABASE_URL
         setup_db(self.app, self.database_url)
+
+    def test_enqueue_success(self):
+        """Test successful enqueue."""
+        ip_addresses = ["127.0.0.1", "127.0.0.2"]
+        enqueue = Enqueue()
+        result = enqueue.mutate(None, ip_addresses)
+        self.assertEqual(result.ip_addresses, ip_addresses)
 
     def test_mutation_enqueue_success(self):
         """Test successful enqueue mutation request."""
