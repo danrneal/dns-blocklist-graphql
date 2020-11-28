@@ -126,7 +126,7 @@ class DNSLookupTestCase(unittest.TestCase):
     def test_dns_lookup_no_response_code_success(self):
         """Test successful DNS lookup when no response codes are expected."""
         response_codes = dns_lookup("127.0.0.1")
-        self.assertIsNone(response_codes)
+        self.assertEqual(len(response_codes), 0)
 
     def test_dns_lookup_response_code_success(self):
         """Test successful DNS lookup when response code(s) are expected."""
@@ -143,13 +143,13 @@ class DNSLookupTestCase(unittest.TestCase):
 
     def test_upsert_ip_details_insert_success(self):
         """Test successful insert into the db after DNS lookup."""
-        ip_details = IPDetails.query.filter_by(ip_address="127.0.0.2").first()
+        ip_details = IPDetails.query.filter_by(ip_address="127.0.0.1").first()
         if ip_details is not None:
             db.session.delete(ip_details)
             db.session.commit()
 
-        upsert_ip_details("127.0.0.2")
-        ip_details = IPDetails.query.filter_by(ip_address="127.0.0.2").first()
+        upsert_ip_details("127.0.0.1")
+        ip_details = IPDetails.query.filter_by(ip_address="127.0.0.1").first()
         self.assertIsNotNone(ip_details)
         self.assertEqual(ip_details.created_at, ip_details.updated_at)
 

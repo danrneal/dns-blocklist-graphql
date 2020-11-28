@@ -49,13 +49,13 @@ def dns_lookup(ip_address):
         raise TypeError("Incorrect format for IPv4 IP Address")
 
     ip_address = ".".join(reversed(ip_address))
+    response_codes = []
     dns.resolver.get_default_resolver().nameservers = DNS_SERVERS
     try:
         answer = dns.resolver.resolve(f"{ip_address}.{DNS_BLOCKLIST}")
     except dns.resolver.NXDOMAIN:
-        return None
+        return response_codes
 
-    response_codes = []
     for data in answer:
         response_code = ResponseCode.query.filter_by(
             response_code=str(data)
