@@ -5,6 +5,8 @@ Usage: flask run
 Attributes:
     app: A flask Flask object creating the flask app
 """
+import os
+
 from flask import Flask
 
 from auth import AuthGraphQLView
@@ -16,10 +18,10 @@ setup_db(app)
 
 
 app.add_url_rule(
-    "/graphql",
-    view_func=AuthGraphQLView.as_view("graphql", schema=schema, graphiql=True),
+    "/graphql", view_func=AuthGraphQLView.as_view("graphql", schema=schema),
 )
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    port = os.environ.get("PORT", 5000)
+    app.run(port=port)
