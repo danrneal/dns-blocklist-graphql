@@ -22,6 +22,16 @@ app.add_url_rule(
 )
 
 
+@app.route("/")
+def index():
+    """The route handler for the home page.
+
+    Returns:
+        A simple health check that returns the str 'Working!'
+    """
+    return "Working!"
+
+
 if __name__ == "__main__":
     port = os.environ.get("PORT", 5000)
     app.run(port=port)
