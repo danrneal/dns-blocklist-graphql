@@ -112,6 +112,58 @@ git push heroku main
 
 There is currently an example running on Heroku [here](https://dns-blocklist-graphql.herokuapp.com/).
 
+## GraphQL Schema Reference
+
+### URL
+
+When running locally with the built-in Flask server the graphQL endpoint is as follows:
+
+```bash
+http://127.0.0.1:5000/graphql
+```
+
+### Authentication
+
+The API is protected with basic authentication through the Authorization header. The format of the authorization header should be `Basic username:password` where the username:password pair is base 64 encoded. With the supplied sqlite database, the default valid user supplied is `secureworks:supersecret`
+
+### Schema
+
+```graphql
+schema {
+  query: Query
+  mutation: Mutation
+}
+
+scalar DateTime
+
+type Mutation {
+  enqueue(ipAddresses: [String]): Enqueue
+}
+
+type Query {
+  getIpDetails(ipAddress: String!): IPDetailsType
+  responseCode: [ResponseCodeType]
+}
+
+type Enqueue {
+  ipAddresses: [String]
+}
+
+type IPDetailsType {
+  uuid: ID!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  ipAddress: String!
+  responseCodes: [ResponseCodeType]
+}
+
+type ResponseCodeType {
+  uuid: ID!
+  responseCode: String!
+  ipDetails: [IPDetailsType]
+}
+```
+
 ## Testing Suite
 
 The app has a full unittest suite.
