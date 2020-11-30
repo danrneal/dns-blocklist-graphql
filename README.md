@@ -174,6 +174,28 @@ To run all the tests:
 Usage: test_app.py
 ```
 
+## A Note on External Dependencies
+
+This section will list what external dependencies are being used for which purpose.
+
+The main parts of the application can be broken into three main external dependencies:
+
+- Flask is used as the webserver
+- SQLAlchemy is used as the Object-relational Mapper (ORM)
+- Graphene is used for the GraphQL API
+
+The following dependencies are used as extensions to simplify the logic between the three main dependencies above:
+
+- Flask-SQLAlchemy
+- Flask-GraphQL
+- Graphene-SQLAlchemy
+
+The final three packages that are used are:
+
+- DNSPython - to make DNS requests from Python
+- Gunicorn - a WSGI server used for deployment
+- Werkzeug - security helpers used for password hashing
+
 ## Credit
 
 [Secureworks](https://www.secureworks.com/)
