@@ -50,7 +50,7 @@ class BasicAuthTestCase(unittest.TestCase):
         self.basic_auth = basic_auth(self.mock)
         self.database_url = TEST_DATABASE_URL
         setup_db(self.app, self.database_url)
-        user = User.query.filter_by(username="secureworks")
+        user = User.query.filter_by(username="secureworks").first()
         if user is None:
             user = User(
                 username="secureworks",
