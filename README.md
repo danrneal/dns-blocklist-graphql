@@ -67,6 +67,31 @@ Then running it as simple as:
 docker-compose up
 ```
 
+### Kubernetes
+
+This api also comes with a Helm chart for deploying to Kubernetes. You will need [Helm](https://helm.sh/docs/intro/install/) and the Kubernetes command-line tool, [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/) installed. On Ubuntu:
+
+```bash
+sudo snap install helm --classic
+snap install kubectl --classic
+```
+
+To test this out locally [minikube](https://minikube.sigs.k8s.io/docs/start/) is recommended. On Ubuntu:
+
+```bash
+curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube_latest_amd64.deb
+sudo dpkg -i minikube_latest_amd64.deb
+minikube start
+```
+
+Lastly to use Helm to deploy to kubernetes:
+
+```bash
+helm install dns-blocklist-graphql deploy/
+```
+
+After running this command, the commandline will issue instructions on how to proceed.
+
 ### Heroku
 
 You will need the [Heroku CLI](https://devcenter.heroku.com/articles/heroku-cli) installed. On Ubuntu:
