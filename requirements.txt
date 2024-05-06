@@ -6,4 +6,4 @@ graphene==2.1.8
 graphene_sqlalchemy==2.3.0
 gunicorn==22.0.0
 SQLAlchemy==1.3.20
-Werkzeug==3.0.1
+Werkzeug==3.0.3
